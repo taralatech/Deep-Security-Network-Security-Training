@@ -7,42 +7,29 @@ param (
     [Parameter(Mandatory=$true)][string]$azusername,
     [Parameter(Mandatory=$true)][string]$azpassword
 )
-$mtlocation = "westus2"
 $mtresourcegroupname = "Demo"
-$mtstorageaccountname = "523bbcf97f0d"
-$mtvirtualnetworkname = "Demovirtualnetwork"
-$mtpubipaddressname = "Demo-pubip2"
-$mtnetworksecuritygroupname = "Internetfacing-westus2"
-$mtavailabilityset1 = "Demo-as1"
-#VM settings
-$mtvmname = "az-dmo2"
-$mtvmnicname = "az-dmo2-NIC"
-$mtvmsize = "Standard_B1ms"
-$mtvmpublisher = "MicrosoftWindowsServer"
-$mtvmoffer = "WindowsServer"
-$mtvmsku = "2019-Datacenter-smalldisk"
-$mtvmversion = "2019.0.20190603"
-$mtdemousername = $azusername
-$mtdemopassword = $azpassword
-$mtdemosecurepassword = Convertto-SecureString -String $mtdemopassword -AsPlainText -force
-$mtdemocredentials = New-object System.Management.Automation.PSCredential $mtdemousername,$mtdemosecurepassword
-$mtusername = $loginusername
-$mtclearpassword = $loginpassword
-$mteecurePassword = Convertto-SecureString -String $mtclearpassword -AsPlainText -force
-$mtcredentials=New-object System.Management.Automation.PSCredential $mtusername,$mteecurePassword
+$securepassword = Convertto-SecureString -String $azpassword -AsPlainText -force
+$democredentials = New-object System.Management.Automation.PSCredential $azusername,$securepassword
 
 
-Connect-AzAccount -credential $mtdemocredentials -ErrorAction Stop
+Connect-AzAccount -credential $democredentials -ErrorAction Stop
 
-#Get-AzVM -resourcegroupname $mtresourcegroupname | Stop-AzVM -force
 $demovm = Get-AzVM -resourcegroupname $mtresourcegroupname
+write-host "Stopping VM"
 $demovm | Stop-AzVM -SkipShutdown -force
+write-host "Deleting VM"
 $demovm | Remove-AzVM -Force
-
+write-host "Deleting VM NIC"
 Get-AzNetworkInterface -ResourceGroupName $mtresourcegroupname | Remove-AzNetworkInterface -Force
+write-host "Deleting VM PubIPA"
 Get-AzPublicIpAddress -ResourceGroupName $mtresourcegroupname | Remove-AzPublicIpAddress -Force
+write-host "Deleting VM Storage"
 Get-AzDisk -ResourceGroupName $mtresourcegroupname | Remove-AzDisk -Force
-Get-AzStorageAccount -resourcegroupname $mtresourcegroupname | Remove-AzStorageAccount
+write-host "Deleting VM Storage Account"
+Get-AzStorageAccount -resourcegroupname $mtresourcegroupname | Remove-AzStorageAccount -Force
+write-host "Deleting NSG"
 Get-AzNetworkSecurityGroup -ResourceGroupName $mtresourcegroupname | Remove-AzNetworkSecurityGroup -Force
+write-host "Deleting VNet"
 Get-AzVirtualNetwork -ResourceGroupName $mtresourcegroupname | Remove-AzVirtualNetwork -Force
+write-host "Deleting Resource Group"
 Get-AzResourceGroup -Name $mtresourcegroupname | Remove-AzResourceGroup -Force
