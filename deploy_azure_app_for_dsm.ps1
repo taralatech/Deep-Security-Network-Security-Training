@@ -17,7 +17,12 @@ $azadserviceprincipal = New-AzADServicePrincipal -ApplicationID $dsazadapplicati
 Write-host "waiting 30 seconds for Azure replication" -ForegroundColor Cyan
 start-sleep 30
 $azroleassignment = New-AzRoleAssignment -ApplicationId $dsazadapplication.ApplicationId -RoleDefinitionName Reader -Scope $azsubsscope
-
+write-host "You will need the below" -ForegroundColor Yellow
+write-host "--------------------------------------------"
+write-host "Active Directory ID     :" $azadsubs.TenantId -ForegroundColor Green
+write-host "Subscription ID         :" $azadsubs.Id -ForegroundColor Green
+write-host "Application ID          :" $dsazadapplication.ApplicationId -ForegroundColor Green
+write-host "Password                : I'm not telling you" -ForegroundColor Green
 
 
 
