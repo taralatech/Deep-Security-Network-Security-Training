@@ -12,7 +12,7 @@ Disconnect-AzAccount
 
 if (!$azusername) {
 	write-host "azusername is null"
-    Connect-AzAccount -Credential (get-credential)
+    Connect-AzAccount
 }
 else {
     write-host "azusername is present"  
