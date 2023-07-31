@@ -4,15 +4,24 @@
 #Import-Module Az.Accounts
 #connect-azaccount
 param (
-    [Parameter(Mandatory=$true)][string]$azusername,
-    [Parameter(Mandatory=$true)][string]$azpassword
+    [Parameter(Mandatory=$false)][string]$azusername,
+    [Parameter(Mandatory=$false)][string]$azpassword,
+	[Parameter(Mandatory=$true)][string]$ResourceGroupName
 )
-$mtresourcegroupname = "Demo"
-$securepassword = Convertto-SecureString -String $azpassword -AsPlainText -force
-$democredentials = New-object System.Management.Automation.PSCredential $azusername,$securepassword
+Disconnect-AzAccount
 
+if (!$azusername) {
+	write-host "azusername is null"
+    Connect-AzAccount -Credential (get-credential)
+}
+else {
+    write-host "azusername is present"  
+	$securepassword = Convertto-SecureString -String $azpassword -AsPlainText -force
+	$democredentials = New-object System.Management.Automation.PSCredential $azusername,$securepassword
+	Connect-AzAccount -credential $democredentials -ErrorAction Stop
+}
 
-Connect-AzAccount -credential $democredentials -ErrorAction Stop
+$mtresourcegroupname = $ResourceGroupName
 
 $demovm = Get-AzVM -resourcegroupname $mtresourcegroupname
 write-host "Stopping VM"
